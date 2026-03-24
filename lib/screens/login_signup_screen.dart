@@ -135,26 +135,36 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             context, AuthService.routeForRole(appUser.currentRole));
       } else {
         // ── Sign-up ─────────────────────────────────────────────────────────
+        final email    = _emailController.text.trim();
+        final password = _passwordController.text;
+        final name     = _nameController.text.trim();
+        final role     = _selectedRole!;
+
         final cred =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
+          email: email,
+          password: password,
         );
 
         // Send verification email immediately after account creation
         await cred.user!.sendEmailVerification();
 
+        // ⚠️ Sign out BEFORE navigating so AuthWrapper does NOT
+        // intercept and override navigation to OtpVerificationScreen.
+        await FirebaseAuth.instance.signOut();
+
         if (!mounted) return;
 
-        // Navigate to verification screen — Firestore profile is created
-        // only after user clicks the link in their email.
+        // Navigate to verification screen. Password is passed so the screen
+        // can sign the user back in once email is verified.
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (_) => OtpVerificationScreen(
-              email: _emailController.text.trim(),
-              name: _nameController.text.trim(),
-              role: _selectedRole!,
+              email: email,
+              password: password,
+              name: name,
+              role: role,
             ),
           ),
         );

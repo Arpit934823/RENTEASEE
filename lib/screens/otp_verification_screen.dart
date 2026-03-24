@@ -3,17 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 
-/// Shown after sign-up. The user must click the link in their email to proceed.
-/// Receives the role + name that were collected during sign-up so a Firestore
-/// profile can be created once verification is confirmed.
+/// Shown after sign-up. The user is signed out at this point.
+/// They must click the verification link in their email.
+/// We sign them back in to check `emailVerified`, then create the Firestore profile.
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
+  final String password;
   final String name;
   final String role;
 
   const OtpVerificationScreen({
     super.key,
     required this.email,
+    required this.password,
     required this.name,
     required this.role,
   });
@@ -23,18 +25,26 @@ class OtpVerificationScreen extends StatefulWidget {
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  bool _isChecking = false;
+  bool _isChecking  = false;
   bool _isResending = false;
-  bool _verified = false;
-  int _resendCooldown = 0;
+  bool _verified    = false;
+  int  _resendCooldown = 60; // start with 60s cooldown so user doesn't spam
   Timer? _pollTimer;
   Timer? _cooldownTimer;
 
   @override
   void initState() {
     super.initState();
-    // Start polling every 4 seconds to detect when user verifies their email
-    _pollTimer = Timer.periodic(const Duration(seconds: 4), (_) => _checkVerification());
+    // Poll every 5 seconds — sign in silently, check emailVerified, sign out again
+    _pollTimer = Timer.periodic(const Duration(seconds: 5), (_) => _checkVerification());
+    // Countdown timer for resend button
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) { t.cancel(); return; }
+      setState(() {
+        _resendCooldown--;
+        if (_resendCooldown <= 0) t.cancel();
+      });
+    });
   }
 
   @override
@@ -44,28 +54,34 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     super.dispose();
   }
 
+  /// Sign in silently, check emailVerified, sign out if not. 
   Future<void> _checkVerification() async {
     if (_isChecking || _verified) return;
     setState(() => _isChecking = true);
-
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
+      // Sign in with stored credentials
+      final cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: widget.email,
+        password: widget.password,
+      );
+      final user = cred.user;
+      if (user == null) { await FirebaseAuth.instance.signOut(); return; }
 
-      // Reload to get fresh emailVerified status from Firebase
+      // Reload to get the freshest emailVerified flag from Firebase
       await user.reload();
-      final refreshed = FirebaseAuth.instance.currentUser;
+      final refreshed = FirebaseAuth.instance.currentUser!;
 
-      if (refreshed != null && refreshed.emailVerified) {
+      if (refreshed.emailVerified) {
         _pollTimer?.cancel();
-        setState(() {
-          _verified = true;
-          _isChecking = false;
-        });
+        _cooldownTimer?.cancel();
+        setState(() { _verified = true; _isChecking = false; });
         await _completeSignup(refreshed);
+      } else {
+        // Not verified yet — sign back out so AuthWrapper stays neutral
+        await FirebaseAuth.instance.signOut();
       }
     } catch (_) {
-      // Silently ignore reload failures (network issues etc.)
+      // Swallow transient network errors; keep the user on this screen
     } finally {
       if (mounted) setState(() => _isChecking = false);
     }
@@ -73,12 +89,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   Future<void> _completeSignup(User user) async {
     try {
-      // Update display name if provided
-      if (widget.name.isNotEmpty) {
-        await user.updateDisplayName(widget.name);
-      }
+      if (widget.name.isNotEmpty) await user.updateDisplayName(widget.name);
 
-      // Create Firestore profile
       await AuthService.createUser(
         uid: user.uid,
         email: widget.email,
@@ -92,12 +104,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           context, AuthService.routeForRole(widget.role));
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Could not complete sign-up: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Could not complete sign-up: $e'),
+          behavior: SnackBarBehavior.floating,
+        ));
       }
     }
   }
@@ -106,16 +116,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (_resendCooldown > 0) return;
     setState(() => _isResending = true);
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      await user?.sendEmailVerification();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Verification email resent! Please check your inbox.'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      // Sign in, send email, sign out again
+      final cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: widget.email,
+        password: widget.password,
       );
-      // Start 60-second cooldown
+      await cred.user!.sendEmailVerification();
+      await FirebaseAuth.instance.signOut();
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Verification email resent! Check your inbox.'),
+        behavior: SnackBarBehavior.floating,
+      ));
       setState(() => _resendCooldown = 60);
       _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
         if (!mounted) { t.cancel(); return; }
@@ -126,12 +139,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to resend: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to resend: $e'),
+          behavior: SnackBarBehavior.floating,
+        ));
       }
     } finally {
       if (mounted) setState(() => _isResending = false);
@@ -139,9 +150,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   Future<void> _cancelAndGoBack() async {
-    // Delete the unverified account so user can try again cleanly
+    // Delete the unverified account so the email can be reused
     try {
-      await FirebaseAuth.instance.currentUser?.delete();
+      final cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: widget.email,
+        password: widget.password,
+      );
+      await cred.user?.delete();
     } catch (_) {}
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, '/login_signup');
@@ -163,13 +178,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 16),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 28.0, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 24),
 
-              // Icon
               Center(
                 child: Container(
                   width: 90,
@@ -211,7 +226,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     const TextSpan(
                         text:
-                            '\n\nClick the link in the email to activate your account. This page will update automatically.'),
+                            '\n\nClick the link in the email to activate your account. This page will refresh automatically.'),
                   ],
                 ),
               ),
@@ -246,7 +261,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           ),
                           const SizedBox(width: 10),
                           Text('Waiting for verification…',
-                              style: TextStyle(color: Colors.grey.shade600)),
+                              style:
+                                  TextStyle(color: Colors.grey.shade600)),
                         ],
                       ),
               ),
@@ -277,15 +293,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Didn't receive the email? ",
+                  Text("Didn't get the email? ",
                       style: Theme.of(context).textTheme.bodyMedium),
                   _isResending
                       ? const SizedBox(
                           width: 14,
                           height: 14,
-                          child:
-                              CircularProgressIndicator(strokeWidth: 2),
-                        )
+                          child: CircularProgressIndicator(strokeWidth: 2))
                       : TextButton(
                           onPressed:
                               _resendCooldown > 0 ? null : _resendEmail,
@@ -304,7 +318,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Cancel
               TextButton(
                 onPressed: _cancelAndGoBack,
                 child: const Text('Cancel & go back',
