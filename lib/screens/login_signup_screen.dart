@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
-import 'otp_verification_screen.dart';
+import '../signup_state.dart';
 
 class LoginSignupScreen extends StatefulWidget {
   /// When true, the user is already authenticated in Firebase Auth
@@ -140,35 +140,25 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
         final name     = _nameController.text.trim();
         final role     = _selectedRole!;
 
+        // Store pending data BEFORE creating the account so that
+        // AuthWrapper can read it the instant the auth stream fires.
+        SignupState.set(
+          email: email, password: password, name: name, role: role);
+
         final cred =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
 
-        // Send verification email immediately after account creation
+        // Send the verification email
         await cred.user!.sendEmailVerification();
 
-        // ⚠️ Sign out BEFORE navigating so AuthWrapper does NOT
-        // intercept and override navigation to OtpVerificationScreen.
-        await FirebaseAuth.instance.signOut();
-
-        if (!mounted) return;
-
-        // Navigate to verification screen. Password is passed so the screen
-        // can sign the user back in once email is verified.
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => OtpVerificationScreen(
-              email: email,
-              password: password,
-              name: name,
-              role: role,
-            ),
-          ),
-        );
-        return; // skip the finally-setState below
+        // ✅ That's it — DO NOT sign out or push any route here.
+        // The auth stream has already fired (user is logged in, not verified).
+        // AuthWrapper detects SignupState.hasPending == true and renders
+        // OtpVerificationScreen directly as its widget. No Navigator needed.
+        return;
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) _showError(e.message ?? 'Authentication failed');
