@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 
-/// Shown after sign-up. The user is signed out at this point.
-/// They must click the verification link in their email.
-/// We sign them back in to check `emailVerified`, then create the Firestore profile.
+/// Shown after sign-up, while the user is SIGNED OUT.
+/// User must click the link in their email, then press "I've verified".
+/// We sign in, check emailVerified, create the Firestore profile, and proceed.
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
   final String password;
@@ -28,16 +28,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   bool _isChecking  = false;
   bool _isResending = false;
   bool _verified    = false;
-  int  _resendCooldown = 60; // start with 60s cooldown so user doesn't spam
-  Timer? _pollTimer;
+  int  _resendCooldown = 60;
   Timer? _cooldownTimer;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    // Poll every 5 seconds — sign in silently, check emailVerified, sign out again
-    _pollTimer = Timer.periodic(const Duration(seconds: 5), (_) => _checkVerification());
-    // Countdown timer for resend button
+    // 60-second cooldown before user can request another email
     _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) { t.cancel(); return; }
       setState(() {
@@ -49,50 +47,51 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   void dispose() {
-    _pollTimer?.cancel();
     _cooldownTimer?.cancel();
     super.dispose();
   }
 
-  /// Sign in silently, check emailVerified, sign out if not. 
+  /// Sign in, check emailVerified, then:
+  ///  - if verified  → create profile → navigate to dashboard
+  ///  - if not verified → sign out immediately and show error
   Future<void> _checkVerification() async {
     if (_isChecking || _verified) return;
-    setState(() => _isChecking = true);
+    setState(() { _isChecking = true; _errorMessage = null; });
+
     try {
-      // Sign in with stored credentials
       final cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: widget.email,
         password: widget.password,
       );
       final user = cred.user;
-      if (user == null) { await FirebaseAuth.instance.signOut(); return; }
+      if (user == null) throw Exception('Could not sign in');
 
-      // Reload to get the freshest emailVerified flag from Firebase
+      // Force-refresh to get latest emailVerified from Firebase servers
       await user.reload();
       final refreshed = FirebaseAuth.instance.currentUser!;
 
-      if (refreshed.emailVerified) {
-        _pollTimer?.cancel();
-        _cooldownTimer?.cancel();
-        setState(() { _verified = true; _isChecking = false; });
-        await _completeSignup(refreshed);
-      } else {
-        // Not verified yet — sign back out so AuthWrapper stays neutral
+      if (!refreshed.emailVerified) {
+        // Not verified yet — sign back out (AuthWrapper would do this too,
+        // but we proactively avoid the flash by doing it ourselves first)
         await FirebaseAuth.instance.signOut();
+        if (mounted) {
+          setState(() {
+            _isChecking = false;
+            _errorMessage =
+                'Email not verified yet. Please click the link in your inbox and try again.';
+          });
+        }
+        return;
       }
-    } catch (_) {
-      // Swallow transient network errors; keep the user on this screen
-    } finally {
-      if (mounted) setState(() => _isChecking = false);
-    }
-  }
 
-  Future<void> _completeSignup(User user) async {
-    try {
-      if (widget.name.isNotEmpty) await user.updateDisplayName(widget.name);
+      // ✅ Verified — complete sign-up
+      setState(() { _verified = true; _isChecking = false; });
 
+      if (widget.name.isNotEmpty) {
+        await refreshed.updateDisplayName(widget.name);
+      }
       await AuthService.createUser(
-        uid: user.uid,
+        uid: refreshed.uid,
         email: widget.email,
         name: widget.name,
         roles: [widget.role],
@@ -100,36 +99,47 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       );
 
       if (!mounted) return;
+      // AuthWrapper will now see a verified, profiled user and route correctly
       Navigator.pushReplacementNamed(
           context, AuthService.routeForRole(widget.role));
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
+      await FirebaseAuth.instance.signOut();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Could not complete sign-up: $e'),
-          behavior: SnackBarBehavior.floating,
-        ));
+        setState(() {
+          _isChecking = false;
+          _errorMessage = e.message ?? 'Authentication failed';
+        });
+      }
+    } catch (e) {
+      await FirebaseAuth.instance.signOut();
+      if (mounted) {
+        setState(() {
+          _isChecking = false;
+          _errorMessage = 'Something went wrong: $e';
+        });
       }
     }
   }
 
   Future<void> _resendEmail() async {
     if (_resendCooldown > 0) return;
-    setState(() => _isResending = true);
+    setState(() { _isResending = true; _errorMessage = null; });
     try {
-      // Sign in, send email, sign out again
       final cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: widget.email,
         password: widget.password,
       );
       await cred.user!.sendEmailVerification();
+      // Sign out immediately so AuthWrapper doesn't bounce the unverified user
       await FirebaseAuth.instance.signOut();
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Verification email resent! Check your inbox.'),
+        content: Text('✉️ Verification email resent! Check your inbox.'),
         behavior: SnackBarBehavior.floating,
       ));
       setState(() => _resendCooldown = 60);
+      _cooldownTimer?.cancel();
       _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
         if (!mounted) { t.cancel(); return; }
         setState(() {
@@ -138,11 +148,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         });
       });
     } catch (e) {
+      await FirebaseAuth.instance.signOut();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Failed to resend: $e'),
-          behavior: SnackBarBehavior.floating,
-        ));
+        setState(() => _errorMessage = 'Failed to resend: $e');
       }
     } finally {
       if (mounted) setState(() => _isResending = false);
@@ -158,6 +166,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       );
       await cred.user?.delete();
     } catch (_) {}
+    await FirebaseAuth.instance.signOut();
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, '/login_signup');
   }
@@ -178,29 +187,41 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 28.0, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 24),
 
+              // Icon
               Center(
-                child: Container(
-                  width: 90,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: primary.withAlpha((0.1 * 255).round()),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.mark_email_unread_outlined,
-                      size: 44, color: primary),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 400),
+                  child: _verified
+                      ? Container(
+                          key: const ValueKey('done'),
+                          width: 90, height: 90,
+                          decoration: BoxDecoration(
+                            color: Colors.green.withAlpha(26),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.check_circle_outline_rounded,
+                              size: 48, color: Colors.green.shade600))
+                      : Container(
+                          key: const ValueKey('waiting'),
+                          width: 90, height: 90,
+                          decoration: BoxDecoration(
+                            color: primary.withAlpha((0.10 * 255).round()),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.mark_email_unread_outlined,
+                              size: 44, color: primary)),
                 ),
               ),
               const SizedBox(height: 28),
 
               Text(
-                'Verify Your Email',
+                _verified ? 'Email Verified! 🎉' : 'Verify Your Email',
                 style: Theme.of(context)
                     .textTheme
                     .displayMedium
@@ -209,87 +230,82 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               ),
               const SizedBox(height: 12),
 
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(height: 1.6),
-                  children: [
-                    const TextSpan(
-                        text: 'We sent a verification link to\n'),
-                    TextSpan(
-                      text: widget.email,
-                      style: TextStyle(
-                          color: primary, fontWeight: FontWeight.bold),
-                    ),
-                    const TextSpan(
-                        text:
-                            '\n\nClick the link in the email to activate your account. This page will refresh automatically.'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Status indicator
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: _verified
-                    ? Row(
-                        key: const ValueKey('verified'),
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.check_circle_rounded,
-                              color: Colors.green.shade600, size: 22),
-                          const SizedBox(width: 8),
-                          Text('Email verified! Redirecting…',
-                              style: TextStyle(
-                                  color: Colors.green.shade700,
-                                  fontWeight: FontWeight.w600)),
-                        ],
-                      )
-                    : Row(
-                        key: const ValueKey('waiting'),
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: primary),
-                          ),
-                          const SizedBox(width: 10),
-                          Text('Waiting for verification…',
-                              style:
-                                  TextStyle(color: Colors.grey.shade600)),
-                        ],
+              if (!_verified) ...[
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(height: 1.6),
+                    children: [
+                      const TextSpan(text: 'We sent a verification link to\n'),
+                      TextSpan(
+                        text: widget.email,
+                        style: TextStyle(
+                            color: primary, fontWeight: FontWeight.bold),
                       ),
-              ),
+                      const TextSpan(
+                          text:
+                              '\n\nClick the link in the email, then press the button below.'),
+                    ],
+                  ),
+                ),
+              ],
+
+              // Error message
+              if (_errorMessage != null) ...[
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red.shade600, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(_errorMessage!,
+                            style: TextStyle(
+                                color: Colors.red.shade700, fontSize: 13)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
 
               const Spacer(),
 
-              // Manual check button
-              OutlinedButton.icon(
-                onPressed: _isChecking ? null : _checkVerification,
+              // Main CTA — "I've verified, let me in"
+              ElevatedButton.icon(
+                onPressed: _isChecking || _verified ? null : _checkVerification,
                 icon: _isChecking
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
+                    ? const SizedBox(
+                        width: 18, height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: primary),
-                      )
-                    : const Icon(Icons.refresh_rounded),
-                label: const Text("I've verified, check now"),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 52),
+                            strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.verified_user_outlined),
+                label: Text(
+                  _isChecking
+                      ? 'Checking…'
+                      : _verified
+                          ? 'Redirecting…'
+                          : "✓ I've verified my email",
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
                 ),
               ),
               const SizedBox(height: 14),
 
-              // Resend button
+              // Resend row
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -297,12 +313,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       style: Theme.of(context).textTheme.bodyMedium),
                   _isResending
                       ? const SizedBox(
-                          width: 14,
-                          height: 14,
+                          width: 14, height: 14,
                           child: CircularProgressIndicator(strokeWidth: 2))
                       : TextButton(
-                          onPressed:
-                              _resendCooldown > 0 ? null : _resendEmail,
+                          onPressed: _resendCooldown > 0 ? null : _resendEmail,
                           child: Text(
                             _resendCooldown > 0
                                 ? 'Resend in ${_resendCooldown}s'
@@ -316,11 +330,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
               TextButton(
                 onPressed: _cancelAndGoBack,
-                child: const Text('Cancel & go back',
+                child: const Text('Cancel & use a different email',
                     style: TextStyle(color: Colors.grey)),
               ),
               const SizedBox(height: 24),
