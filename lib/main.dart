@@ -3,7 +3,6 @@ import 'theme.dart';
 import 'auth_wrapper.dart';
 import 'screens/onboarding_carousel.dart';
 import 'screens/login_signup_screen.dart';
-import 'screens/otp_verification_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/user_type_selection_screen.dart';
 import 'screens/profile_setup_screen.dart';
@@ -35,7 +34,6 @@ class RentEaseeApp extends StatelessWidget {
       routes: {
         '/onboarding': (context) => const OnboardingCarousel(),
         '/login_signup': (context) => const LoginSignupScreen(),
-        '/otp_verification': (context) => const OtpVerificationScreen(),
         '/user_type_selection': (context) => const UserTypeSelectionScreen(),
         '/profile_setup': (context) => const ProfileSetupScreen(),
         '/home': (context) => const HomeScreen(),

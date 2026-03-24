@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
+import 'otp_verification_screen.dart';
 
 class LoginSignupScreen extends StatefulWidget {
   /// When true, the user is already authenticated in Firebase Auth
@@ -134,41 +135,30 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             context, AuthService.routeForRole(appUser.currentRole));
       } else {
         // ── Sign-up ─────────────────────────────────────────────────────────
-        final isAlreadySignedIn =
-            FirebaseAuth.instance.currentUser != null;
-
-        late String uid;
-        late String email;
-
-        if (isAlreadySignedIn) {
-          // User was already authed (edge case from needsProfile flow)
-          uid = FirebaseAuth.instance.currentUser!.uid;
-          email = FirebaseAuth.instance.currentUser!.email ?? '';
-        } else {
-          final cred =
-              await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          );
-          uid = cred.user!.uid;
-          email = _emailController.text.trim();
-        }
-
-        final fbUser = FirebaseAuth.instance.currentUser!;
-        final name = _nameController.text.trim();
-        if (name.isNotEmpty) await fbUser.updateDisplayName(name);
-
-        await AuthService.createUser(
-          uid: uid,
-          email: email,
-          name: name,
-          roles: [_selectedRole!],
-          currentRole: _selectedRole!,
+        final cred =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
         );
 
+        // Send verification email immediately after account creation
+        await cred.user!.sendEmailVerification();
+
         if (!mounted) return;
-        Navigator.pushReplacementNamed(
-            context, AuthService.routeForRole(_selectedRole!));
+
+        // Navigate to verification screen — Firestore profile is created
+        // only after user clicks the link in their email.
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OtpVerificationScreen(
+              email: _emailController.text.trim(),
+              name: _nameController.text.trim(),
+              role: _selectedRole!,
+            ),
+          ),
+        );
+        return; // skip the finally-setState below
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) _showError(e.message ?? 'Authentication failed');
