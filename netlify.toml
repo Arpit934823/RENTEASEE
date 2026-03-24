@@ -1,0 +1,21 @@
+[build]
+  command   = "git clone https://github.com/flutter/flutter.git -b stable --depth=1 && ./flutter/bin/flutter config --enable-web && ./flutter/bin/flutter pub get && ./flutter/bin/flutter build web --release"
+  publish   = "build/web"
+
+[build.environment]
+  FLUTTER_VERSION = "stable"
+
+[[headers]]
+  for = "/flutter_service_worker.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "max-age=604800, public"
+
+[[headers]]
+  for = "/*.wasm"
+  [headers.values]
+    Cache-Control = "max-age=604800, public"

@@ -1,11 +1,11 @@
 {
-    "name": "renteasee",
-    "short_name": "renteasee",
-    "start_url": ".",
+    "name": "RentEase",
+    "short_name": "RentEase",
+    "start_url": "/",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0F1923",
+    "theme_color": "#1A73E8",
+    "description": "The smart way to find, list, and manage rental properties.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

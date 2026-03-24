@@ -44,7 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Firebase — contains API keys, do not commit
+# Firebase native secrets — do NOT commit these
 google-services.json
 GoogleService-Info.plist
-lib/firebase_options.dart
+# NOTE: lib/firebase_options.dart is intentionally NOT ignored.
+# It is needed by CI (Netlify/GitHub Actions) to build the Flutter web app.
+# It contains only web API keys (which are public by design for client-side apps).
+
