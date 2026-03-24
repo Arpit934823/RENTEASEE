@@ -99,12 +99,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         currentRole: widget.role,
       );
 
-      // Clear pending state — AuthWrapper will now see a verified,
-      // profiled user and route to the correct dashboard automatically.
+      // Clear pending state, then navigate to dashboard directly.
+      // (authStateChanges() doesn't fire on token refresh, so we can't
+      // rely on AuthWrapper to re-route — we navigate explicitly.)
       SignupState.clear();
 
-      // Force an auth state refresh so AuthWrapper's stream picks it up
-      await FirebaseAuth.instance.currentUser?.getIdToken(true);
+      if (!mounted) return;
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AuthService.routeForRole(widget.role),
+        (route) => false,
+      );
 
     } catch (e) {
       if (mounted) {
