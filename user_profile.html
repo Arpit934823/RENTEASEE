@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile - RentEase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed": "#ffffff",
+              "on-primary": "#fbf7ff",
+              "on-background": "#2d3335",
+              "on-secondary-fixed-variant": "#5b596e",
+              "surface-container-highest": "#dee3e6",
+              "surface-container": "#ebeef0",
+              "background": "#f8f9fa",
+              "surface-variant": "#dee3e6",
+              "tertiary-dim": "#68486b",
+              "on-surface": "#2d3335",
+              "on-secondary": "#fbf7ff",
+              "secondary-dim": "#525166",
+              "tertiary-fixed-dim": "#eec4ef",
+              "surface-container-high": "#e5e9eb",
+              "secondary-fixed-dim": "#d5d2eb",
+              "error-container": "#f97386",
+              "inverse-on-surface": "#9b9d9e",
+              "primary": "#4e45e4",
+              "on-tertiary-fixed-variant": "#704e72",
+              "inverse-surface": "#0c0f10",
+              "secondary": "#5e5d72",
+              "tertiary": "#755478",
+              "on-tertiary-container": "#654568",
+              "error-dim": "#6b0221",
+              "on-tertiary": "#fff7fa",
+              "tertiary-container": "#fdd2fd",
+              "primary-container": "#6760fd",
+              "on-secondary-fixed": "#3e3d51",
+              "outline": "#767c7e",
+              "secondary-container": "#e3e0f9",
+              "on-error-container": "#6e0523",
+              "on-primary-container": "#000000",
+              "inverse-primary": "#8582ff",
+              "error": "#a8364b",
+              "on-tertiary-fixed": "#513254",
+              "surface": "#f8f9fa",
+              "on-primary-fixed-variant": "#edeaff",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-container": "#515064",
+              "surface-tint": "#4e45e4",
+              "surface-bright": "#f8f9fa",
+              "on-surface-variant": "#5a6062",
+              "primary-fixed": "#6760fd",
+              "primary-dim": "#4135d8",
+              "surface-dim": "#d5dbdd",
+              "surface-container-low": "#f1f4f5",
+              "secondary-fixed": "#e3e0f9",
+              "on-error": "#fff7f7",
+              "outline-variant": "#adb3b5",
+              "tertiary-fixed": "#fdd2fd",
+              "primary-fixed-dim": "#5a52f0"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface selection:bg-primary-container">
+<!-- Top Navigation Shell -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm shadow-indigo-500/5 flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 duration-200 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">arrow_back</span>
+</button>
+<h1 class="font-manrope font-bold text-lg tracking-tight text-on-surface">Profile</h1>
+</div>
+<button class="active:scale-95 duration-200 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">settings</span>
+</button>
+</nav>
+<main class="pt-24 pb-32 px-6 max-w-3xl mx-auto space-y-10">
+<!-- Header Section -->
+<header class="flex flex-col items-center text-center space-y-4">
+<div class="relative">
+<div class="w-32 h-32 rounded-full ring-4 ring-white shadow-xl overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="portrait of a professional man with a friendly expression in a bright studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDq1wT26-JHVS4JV9y6Hyf8_Gjk73WzxxEIk6OwPZN8SmQFfMqWZ0UrK735ytH14nF3mw823ZaxTQJ2_OCUyCbZYlmgSe__kyyzV1ugt7DLomZTLSfhlblrG366LzwDAyBazQHRfe45XoQ-uTZ5eXHq6j860wZvKRulanD3p_vbi4cJl8A-XdY0QH3mED0Pou0L7XTMqDX0Ce7xxCGLcBJFLM-XXohboaHM2r9F9bTGh44TSVS5L9pGFtcp5OIFwQ-UVFQT7uZyeIM"/>
+</div>
+<div class="absolute bottom-0 right-0 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border-2 border-white">
+                    Landlord
+                </div>
+</div>
+<div class="space-y-1">
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Julian Alexander</h2>
+<p class="text-on-surface-variant font-medium">julian.alexander@rentease.com</p>
+</div>
+<button class="px-8 py-3 bg-surface-container-high text-primary font-bold rounded-full active:scale-95 transition-all duration-200">
+                Edit Profile
+            </button>
+</header>
+<!-- Stats Section (Bento Inspired) -->
+<section class="grid grid-cols-3 gap-4">
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_4px_20px_rgba(78,69,228,0.04)] text-center border border-outline-variant/10">
+<p class="text-[28px] font-extrabold text-primary leading-tight">12</p>
+<p class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Total Listings</p>
+</div>
+<div class="bg-primary bg-gradient-to-br from-primary to-primary-container p-5 rounded-xl shadow-[0_8px_30px_rgba(78,69,228,0.15)] text-center">
+<p class="text-[28px] font-extrabold text-white leading-tight">08</p>
+<p class="text-[11px] font-bold uppercase tracking-widest text-white/80 mt-1">Active</p>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_4px_20px_rgba(78,69,228,0.04)] text-center border border-outline-variant/10">
+<p class="text-[28px] font-extrabold text-primary leading-tight">45</p>
+<p class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Inquiries</p>
+</div>
+</section>
+<!-- Quick Actions (Horizontal) -->
+<section class="space-y-4">
+<h3 class="text-sm font-bold uppercase tracking-[0.15em] text-on-surface-variant px-1">Quick Actions</h3>
+<div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6">
+<div class="flex-none w-40 bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/5 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary mb-3">list_alt</span>
+<p class="font-bold text-sm">My Listings</p>
+</div>
+<div class="flex-none w-40 bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/5 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary mb-3">favorite</span>
+<p class="font-bold text-sm">Saved Properties</p>
+</div>
+<div class="flex-none w-40 bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/5 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary mb-3">chat_bubble_outline</span>
+<p class="font-bold text-sm">My Inquiries</p>
+</div>
+<div class="flex-none w-40 bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/5 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary mb-3">lock_reset</span>
+<p class="font-bold text-sm">Change Password</p>
+</div>
+</div>
+</section>
+<!-- Main List Menu -->
+<section class="bg-surface-container-lowest rounded-[2rem] p-4 shadow-sm space-y-1">
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low rounded-2xl transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">manage_accounts</span>
+</div>
+<span class="font-semibold">Account Settings</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low rounded-2xl transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications_active</span>
+</div>
+<span class="font-semibold">Notifications</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low rounded-2xl transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<span class="font-semibold">Privacy &amp; Security</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low rounded-2xl transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help_center</span>
+</div>
+<span class="font-semibold">Help &amp; Support</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low rounded-2xl transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">info</span>
+</div>
+<span class="font-semibold">About App</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+</section>
+<!-- Logout Section -->
+<footer class="pt-6">
+<button class="w-full py-5 bg-error-container/10 text-error font-extrabold rounded-3xl hover:bg-error-container/20 active:scale-95 transition-all duration-200 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">logout</span>
+                Logout
+            </button>
+<p class="text-center text-outline-variant text-xs mt-8 pb-10">Version 2.4.1 • RentEase Inc.</p>
+</footer>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-[2rem] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-100/10 shadow-[0_-4px_24px_rgba(78,69,228,0.04)] flex justify-around items-center px-4 pb-6 pt-3">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-300 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-manrope text-[11px] font-semibold">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-300 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span class="font-manrope text-[11px] font-semibold">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-300 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="travel_explore">travel_explore</span>
+<span class="font-manrope text-[11px] font-semibold">Trips</span>
+</a>
+<a class="flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person_pin" style="font-variation-settings: 'FILL' 1;">person_pin</span>
+<span class="font-manrope text-[11px] font-semibold">Profile</span>
+</a>
+</nav>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

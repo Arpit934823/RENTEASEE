@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile - RentEase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-dim": "#d5dbdd",
+              "secondary-fixed-dim": "#d5d2eb",
+              "primary-dim": "#4135d8",
+              "surface-container-highest": "#dee3e6",
+              "on-primary-container": "#000000",
+              "on-primary": "#fbf7ff",
+              "on-primary-fixed-variant": "#edeaff",
+              "inverse-primary": "#8582ff",
+              "tertiary-fixed": "#fdd2fd",
+              "tertiary-fixed-dim": "#eec4ef",
+              "secondary-fixed": "#e3e0f9",
+              "surface-container-lowest": "#ffffff",
+              "secondary-dim": "#525166",
+              "primary-fixed": "#6760fd",
+              "on-error-container": "#6e0523",
+              "surface-container-high": "#e5e9eb",
+              "surface-variant": "#dee3e6",
+              "on-secondary-fixed": "#3e3d51",
+              "on-tertiary-container": "#654568",
+              "secondary": "#5e5d72",
+              "surface-container": "#ebeef0",
+              "on-background": "#2d3335",
+              "secondary-container": "#e3e0f9",
+              "on-secondary-container": "#515064",
+              "on-tertiary-fixed-variant": "#704e72",
+              "surface-bright": "#f8f9fa",
+              "surface-tint": "#4e45e4",
+              "on-tertiary-fixed": "#513254",
+              "primary-container": "#6760fd",
+              "inverse-surface": "#0c0f10",
+              "tertiary-dim": "#68486b",
+              "on-secondary": "#fbf7ff",
+              "outline-variant": "#adb3b5",
+              "background": "#f8f9fa",
+              "primary-fixed-dim": "#5a52f0",
+              "outline": "#767c7e",
+              "on-tertiary": "#fff7fa",
+              "inverse-on-surface": "#9b9d9e",
+              "error-dim": "#6b0221",
+              "on-primary-fixed": "#ffffff",
+              "surface": "#f8f9fa",
+              "on-surface-variant": "#5a6062",
+              "tertiary-container": "#fdd2fd",
+              "on-error": "#fff7f7",
+              "on-surface": "#2d3335",
+              "error-container": "#f97386",
+              "surface-container-low": "#f1f4f5",
+              "primary": "#4e45e4",
+              "tertiary": "#755478",
+              "error": "#a8364b",
+              "on-secondary-fixed-variant": "#5b596e"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      body { font-family: 'Manrope', sans-serif; }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex items-center justify-between px-6 h-16 w-full">
+<button class="transition-all duration-200 active:scale-95 hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-full">
+<span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">chevron_left</span>
+</button>
+<h1 class="font-manrope font-bold text-lg tracking-tight text-slate-900 dark:text-slate-50">Profile</h1>
+<button class="transition-all duration-200 active:scale-95 hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-full">
+<span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">settings</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto space-y-8">
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center text-center space-y-4">
+<div class="relative group">
+<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-container-lowest shadow-lg">
+<img alt="Aisha Sharma" class="w-full h-full object-cover" data-alt="portrait of a young professional woman with a friendly smile, warm natural lighting, soft office background, high-end editorial style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW0VhXo698d1wT9O2xbwuNle0vHCJQ0AoS6yOgJe8hLFLJD4TuGMhPIMSxjn26luG-1zELschtLWxeLB9BXGl7SfYAVq3b6Aeu6z3AwJQU8YW2UK8VlvgvsOlEDRAJYgU5bk-IU65sW2nvU3LdLuhJV2tOPxclll69Pi0kTLE5MSpbMpw2P1wwXcLdUPDcIiSutDSbNuiH-WmIhQvgSG9Ybjgi50NTCXJLLXXG60wRuAbUq5yTuyVvoxumvQwCI-QAVCMv8b3Nsnw"/>
+</div>
+<div class="absolute bottom-1 right-1 bg-primary text-on-primary p-1.5 rounded-full border-2 border-white">
+<span class="material-symbols-outlined text-sm">edit</span>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex items-center justify-center gap-2">
+<h2 class="text-2xl font-extrabold text-on-surface tracking-tight">Aisha Sharma</h2>
+<span class="bg-primary px-3 py-0.5 rounded-full text-[10px] font-bold tracking-widest text-on-primary uppercase">TENANT</span>
+</div>
+<p class="text-on-surface-variant font-medium">aisha.sharma@email.com</p>
+</div>
+<button class="px-6 py-2 rounded-full border border-outline-variant/30 text-primary font-bold text-sm transition-all hover:bg-primary/5 active:scale-95">
+                Edit Profile
+            </button>
+</section>
+<!-- Quick Stats Section -->
+<section class="grid grid-cols-3 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(78,69,228,0.04)] transition-transform hover:-translate-y-1">
+<span class="text-xl font-extrabold text-primary">15</span>
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Saved</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(78,69,228,0.04)] transition-transform hover:-translate-y-1">
+<span class="text-xl font-extrabold text-primary">04</span>
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Applied</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(78,69,228,0.04)] transition-transform hover:-translate-y-1">
+<span class="text-xl font-extrabold text-primary">01</span>
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Current</span>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="grid grid-cols-2 gap-4">
+<button class="flex items-center gap-3 p-5 bg-surface-container-low rounded-xl text-left transition-all hover:bg-surface-container-high group">
+<div class="bg-primary/10 p-2.5 rounded-lg group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<span class="font-bold text-sm text-on-surface">Saved Properties</span>
+</button>
+<button class="flex items-center gap-3 p-5 bg-surface-container-low rounded-xl text-left transition-all hover:bg-surface-container-high group">
+<div class="bg-primary/10 p-2.5 rounded-lg group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary">send</span>
+</div>
+<span class="font-bold text-sm text-on-surface">My Applications</span>
+</button>
+</section>
+<!-- Main Options List -->
+<section class="space-y-3">
+<h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-[0.2em] px-2">Account Management</h3>
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
+<!-- Rental Agreement -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">description</span>
+</div>
+<span class="font-semibold text-on-surface">Rental Agreement</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<!-- Rent Payments -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group border-t border-surface-container/30">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+<span class="font-semibold text-on-surface">Rent Payments</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<!-- Maintenance -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group border-t border-surface-container/30">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">build</span>
+</div>
+<span class="font-semibold text-on-surface">Maintenance Requests</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<!-- Notifications -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group border-t border-surface-container/30">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</div>
+<span class="font-semibold text-on-surface">Notifications</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-error text-on-error text-[10px] font-bold px-1.5 py-0.5 rounded-full">2</span>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+</div>
+<!-- Help -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group border-t border-surface-container/30">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</div>
+<span class="font-semibold text-on-surface">Help &amp; Support</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Logout Section -->
+<section class="pt-4">
+<button class="w-full flex items-center justify-center gap-3 p-4 bg-error-container/10 text-error font-extrabold rounded-2xl border border-error/10 hover:bg-error-container/20 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">logout</span>
+                Logout
+            </button>
+<p class="text-center text-[11px] font-bold text-outline-variant/60 mt-8 tracking-widest uppercase">Version 2.4.0 • Build 882</p>
+</section>
+</main>
+<!-- BottomNavBar -->
+</body></html>
